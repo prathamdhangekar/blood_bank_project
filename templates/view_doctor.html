@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>View Doctors - Blood Bank</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+    <a class="logo" href="/">Blood Bank</a>
+    <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/register">Register</a></li>
+        <li><a href="/login">Login</a></li>
+        <li><a href="/view_donor">Donors</a></li>
+        <li><a href="/view_doctor">Doctors</a></li>
+        <li><a href="/view_patient">Patients</a></li>
+        <li><a href="/report">Report</a></li>
+    </ul>
+</div>
+
+<!-- PAGE CONTENT -->
+<div class="container">
+
+    <h2 class="page-title">All Doctors</h2>
+
+    <p>Total Doctors: <strong>{{ doctors|length }}</strong></p>
+    <br>
+
+    <!-- DOCTORS TABLE -->
+    {% if doctors %}
+    <div class="table-box">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Age</th>
+                    <th>Gender</th>
+                    <th>Blood Group</th>
+                    <th>Mobile</th>
+                    <th>Address</th>
+                    <th>Email</th>
+                    <th>Edit</th>
+                    <th>Delete</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for doctor in doctors %}
+                <tr>
+                    <td>{{ doctor['id'] }}</td>
+                    <td>{{ doctor['name'] }}</td>
+                    <td>{{ doctor['age'] }}</td>
+                    <td>{{ doctor['gender'] }}</td>
+                    <td><span class="badge">{{ doctor['blood_group'] }}</span></td>
+                    <td>{{ doctor['mobile'] }}</td>
+                    <td>{{ doctor['address'] }}</td>
+                    <td>{{ doctor['email'] }}</td>
+                    <td>
+                        <a href="/edit_doctor/{{ doctor['id'] }}" class="btn btn-blue btn-small">Edit</a>
+                    </td>
+                    <td>
+                        <a href="/delete_doctor/{{ doctor['id'] }}" class="btn btn-danger btn-small"
+                           onclick="return confirm('Are you sure you want to delete this doctor?')">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% else %}
+    <p>No doctors found. <a href="/register">Register a doctor</a>.</p>
+    {% endif %}
+
+    <br>
+    <a href="/register" class="btn btn-red">Add New Doctor</a>
+
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+    <p>&copy; 2024 Blood Bank Management System</p>
+</div>
+
+</body>
+</html>

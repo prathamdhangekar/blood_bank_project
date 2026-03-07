@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register - Blood Bank</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+    <a class="logo" href="/">Blood Bank</a>
+    <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/register">Register</a></li>
+        <li><a href="/login">Login</a></li>
+        <li><a href="/view_donor">Donors</a></li>
+        <li><a href="/view_doctor">Doctors</a></li>
+        <li><a href="/view_patient">Patients</a></li>
+        <li><a href="/report">Report</a></li>
+    </ul>
+</div>
+
+<!-- PAGE CONTENT -->
+<div class="container">
+
+    <h2 class="page-title">Register</h2>
+
+    <!-- ERROR MESSAGE -->
+    {% if message %}
+    <div class="alert alert-error">{{ message }}</div>
+    {% endif %}
+
+    <!-- REGISTER FORM -->
+    <div class="form-box">
+
+        <form method="POST" action="/register">
+
+            <!-- Role -->
+            <div class="form-group">
+                <label>Register As</label>
+                <select name="role">
+                    <option value="donor">Donor</option>
+                    <option value="doctor">Doctor</option>
+                    <option value="patient">Patient</option>
+                </select>
+            </div>
+
+            <!-- Name -->
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" name="name" placeholder="Enter your name" required>
+            </div>
+
+            <!-- Age -->
+            <div class="form-group">
+                <label>Age</label>
+                <input type="number" name="age" placeholder="Enter your age" required>
+            </div>
+
+            <!-- Gender -->
+            <div class="form-group">
+                <label>Gender</label>
+                <select name="gender">
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <!-- Blood Group -->
+            <div class="form-group">
+                <label>Blood Group</label>
+                <select name="blood_group">
+                    <option value="A+">A+</option>
+                    <option value="A-">A-</option>
+                    <option value="B+">B+</option>
+                    <option value="B-">B-</option>
+                    <option value="O+">O+</option>
+                    <option value="O-">O-</option>
+                    <option value="AB+">AB+</option>
+                    <option value="AB-">AB-</option>
+                </select>
+            </div>
+
+            <!-- Mobile -->
+            <div class="form-group">
+                <label>Mobile Number</label>
+                <input type="text" name="mobile" placeholder="Enter mobile number" required>
+            </div>
+
+            <!-- Address -->
+            <div class="form-group">
+                <label>Address</label>
+                <input type="text" name="address" placeholder="Enter your address" required>
+            </div>
+
+            <!-- Email -->
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" name="email" placeholder="Enter your email" required>
+            </div>
+
+            <!-- Password -->
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" name="password" placeholder="Create a password" required>
+            </div>
+
+            <!-- Submit -->
+            <div class="form-group">
+                <input type="submit" value="Register" class="btn btn-red">
+            </div>
+
+        </form>
+
+        <p class="text-small text-center mt-10">Already registered? <a href="/login">Login here</a></p>
+
+    </div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+    <p>&copy; 2024 Blood Bank Management System</p>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,4 @@
+blood_bank.db
+__pycache__/
+*.pyc
+.env

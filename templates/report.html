@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Blood Bank Report</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+    <a class="logo" href="/">Blood Bank</a>
+    <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/register">Register</a></li>
+        <li><a href="/login">Login</a></li>
+        <li><a href="/view_donor">Donors</a></li>
+        <li><a href="/view_doctor">Doctors</a></li>
+        <li><a href="/view_patient">Patients</a></li>
+        <li><a href="/report">Report</a></li>
+    </ul>
+</div>
+
+<!-- PAGE CONTENT -->
+<div class="container">
+
+    <h2 class="page-title">Blood Bank Report</h2>
+
+    <!-- REPORT HEADER -->
+    <div class="report-header">
+        <h2>Available Blood Units</h2>
+        <p>Current stock of blood units by blood group and hospital</p>
+    </div>
+
+    <!-- REPORT TABLE -->
+    {% if report_data %}
+    <div class="table-box">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Blood Group</th>
+                    <th>Available Units</th>
+                    <th>Hospital Name</th>
+                    <th>Last Updated</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in report_data %}
+                <tr>
+                    <td>{{ row['id'] }}</td>
+                    <td><span class="badge">{{ row['blood_group'] }}</span></td>
+                    <td>{{ row['available_units'] }} units</td>
+                    <td>{{ row['hospital_name'] }}</td>
+                    <td>{{ row['last_updated'] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% else %}
+    <p>No blood bank data available at the moment.</p>
+    {% endif %}
+
+    <br>
+
+    <!-- SUMMARY TABLE -->
+    <h2 class="page-title">Summary by Blood Group</h2>
+
+    <div class="table-box">
+        <table>
+            <thead>
+                <tr>
+                    <th>Blood Group</th>
+                    <th>Total Units Available</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% set blood_groups = ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'] %}
+                {% for bg in blood_groups %}
+                {% set total = namespace(units=0) %}
+                {% for row in report_data %}
+                    {% if row['blood_group'] == bg %}
+                        {% set total.units = total.units + row['available_units'] %}
+                    {% endif %}
+                {% endfor %}
+                <tr>
+                    <td><span class="badge">{{ bg }}</span></td>
+                    <td>{{ total.units }} units</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <br>
+    <a href="/" class="btn btn-red">Back to Home</a>
+
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+    <p>&copy; 2024 Blood Bank Management System</p>
+</div>
+
+</body>
+</html>

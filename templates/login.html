@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login - Blood Bank</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+    <a class="logo" href="/">Blood Bank</a>
+    <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/register">Register</a></li>
+        <li><a href="/login">Login</a></li>
+        <li><a href="/view_donor">Donors</a></li>
+        <li><a href="/view_doctor">Doctors</a></li>
+        <li><a href="/view_patient">Patients</a></li>
+        <li><a href="/report">Report</a></li>
+    </ul>
+</div>
+
+<!-- PAGE CONTENT -->
+<div class="container">
+
+    <h2 class="page-title">Login</h2>
+
+    <!-- ERROR MESSAGE -->
+    {% if message %}
+    <div class="alert alert-error">{{ message }}</div>
+    {% endif %}
+
+    <!-- LOGIN FORM -->
+    <div class="form-box">
+
+        <form method="POST" action="/login">
+
+            <!-- Role -->
+            <div class="form-group">
+                <label>Login As</label>
+                <select name="role">
+                    <option value="donor">Donor</option>
+                    <option value="doctor">Doctor</option>
+                    <option value="patient">Patient</option>
+                </select>
+            </div>
+
+            <!-- Email -->
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" name="email" placeholder="Enter your email" required>
+            </div>
+
+            <!-- Password -->
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" name="password" placeholder="Enter your password" required>
+            </div>
+
+            <!-- Submit -->
+            <div class="form-group">
+                <input type="submit" value="Login" class="btn btn-red">
+            </div>
+
+        </form>
+
+        <p class="text-small text-center mt-10">Not registered yet? <a href="/register">Register here</a></p>
+
+    </div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+    <p>&copy; 2024 Blood Bank Management System</p>
+</div>
+
+</body>
+</html>

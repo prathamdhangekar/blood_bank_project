@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Thank You - Blood Bank</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+    <a class="logo" href="/">Blood Bank</a>
+    <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/register">Register</a></li>
+        <li><a href="/login">Login</a></li>
+        <li><a href="/view_donor">Donors</a></li>
+        <li><a href="/view_doctor">Doctors</a></li>
+        <li><a href="/view_patient">Patients</a></li>
+        <li><a href="/report">Report</a></li>
+    </ul>
+</div>
+
+<!-- PAGE CONTENT -->
+<div class="container">
+
+    <div class="thankyou-box">
+
+        <!-- ICON -->
+        <div class="big-icon">&#10084;</div>
+
+        <!-- MESSAGE -->
+        <h2>Thank You!</h2>
+        <p>Your registration was successful.</p>
+        <p>You are now part of the Blood Bank community.</p>
+        <p>Your contribution helps save lives every day.</p>
+
+        <br>
+
+        <!-- BUTTONS -->
+        <a href="/login" class="btn btn-red">Login Now</a>
+        &nbsp;
+        <a href="/" class="btn btn-blue">Back to Home</a>
+
+    </div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+    <p>&copy; 2024 Blood Bank Management System</p>
+</div>
+
+</body>
+</html>
