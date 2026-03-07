@@ -1,16 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blood Bank Management System</title>
+    <title>Home - Blood Bank</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
 
-<!-- ===== NAVBAR ===== -->
 <div class="navbar">
-    <a class="logo" href="/">&#10084; Blood Bank</a>
+    <a class="logo" href="/">Blood Bank</a>
     <ul>
         <li><a href="/">Home</a></li>
         <li><a href="/register">Register</a></li>
@@ -20,61 +17,52 @@
         <li><a href="/view_patient">Patients</a></li>
         <li><a href="/report">Report</a></li>
         {% if session.get('user_name') %}
-            <li><a href="/logout">Logout ({{ session['user_name'] }})</a></li>
+        <li><a href="/logout">Logout ({{ session['user_name'] }})</a></li>
         {% endif %}
     </ul>
 </div>
 
-<!-- ===== HERO BANNER ===== -->
 <div class="hero">
-    <h1>&#10084; Blood Bank Management System</h1>
-    <p>Connecting donors, doctors, and patients to save lives every day.</p>
-    <a href="/register">Register Now</a>
+    <h1>Blood Bank Management System</h1>
+    <p>Connecting donors, doctors and patients to save lives.</p>
+    <a href="/register">Register</a>
     <a href="/login">Login</a>
     <a href="/report">View Report</a>
 </div>
 
-<!-- ===== QUICK LINKS ===== -->
 <div class="container">
 
     <h2 class="page-title">Quick Links</h2>
 
     <div class="card-row">
-
         <a class="card" href="/register">
             <div class="card-icon">&#128394;</div>
             <div class="card-label">Register</div>
         </a>
-
         <a class="card" href="/login">
             <div class="card-icon">&#128274;</div>
             <div class="card-label">Login</div>
         </a>
-
         <a class="card" href="/view_donor">
             <div class="card-icon">&#129656;</div>
             <div class="card-label">View Donors</div>
         </a>
-
         <a class="card" href="/view_doctor">
             <div class="card-icon">&#129657;</div>
             <div class="card-label">View Doctors</div>
         </a>
-
         <a class="card" href="/view_patient">
             <div class="card-icon">&#128137;</div>
             <div class="card-label">View Patients</div>
         </a>
-
         <a class="card" href="/report">
             <div class="card-icon">&#128202;</div>
             <div class="card-label">Blood Report</div>
         </a>
-
     </div>
 
-    <!-- ===== ABOUT SECTION ===== -->
     <br><br>
+
     <h2 class="page-title">About This System</h2>
 
     <table>
@@ -86,33 +74,32 @@
         </thead>
         <tbody>
             <tr>
-                <td>&#10084; Donor Management</td>
-                <td>Register, view, edit and delete blood donors easily.</td>
+                <td>Donor Management</td>
+                <td>Register, view, edit and delete blood donors.</td>
             </tr>
             <tr>
-                <td>&#129657; Doctor Management</td>
-                <td>Manage doctors who are part of the blood bank network.</td>
+                <td>Doctor Management</td>
+                <td>Manage doctors in the blood bank network.</td>
             </tr>
             <tr>
-                <td>&#128137; Patient Management</td>
-                <td>Keep track of patients who need blood transfusions.</td>
+                <td>Patient Management</td>
+                <td>Track patients who need blood transfusions.</td>
             </tr>
             <tr>
-                <td>&#128202; Blood Bank Report</td>
+                <td>Blood Bank Report</td>
                 <td>View available blood units by blood group and hospital.</td>
             </tr>
             <tr>
-                <td>&#128274; Secure Login</td>
-                <td>Each user (donor, doctor, patient) has a personal login.</td>
+                <td>Secure Login</td>
+                <td>Each user has a personal login with role selection.</td>
             </tr>
         </tbody>
     </table>
 
-    <!-- ===== SESSION INFO ===== -->
     {% if session.get('user_name') %}
     <br>
     <div class="alert alert-success">
-        &#128075; Welcome back, <strong>{{ session['user_name'] }}</strong>!
+        Welcome back, <strong>{{ session['user_name'] }}</strong>!
         You are logged in as <strong>{{ session['user_role'] }}</strong>.
         <a href="/logout" style="color:#007700; margin-left:10px;">Logout</a>
     </div>
@@ -120,9 +107,8 @@
 
 </div>
 
-<!-- ===== FOOTER ===== -->
 <div class="footer">
-    <p>&copy; 2024 Blood Bank Management System. Built with Flask &amp; SQLite.</p>
+    <p>&copy; 2026 Blood Bank Management System. Built with Flask and PostgreSQL.</p>
 </div>
 
 </body>
