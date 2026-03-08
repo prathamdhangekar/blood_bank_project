@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Donation History - Blood Bank</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="navbar">
+    <a class="logo" href="/">Blood Bank</a>
+    <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/dashboard">Dashboard</a></li>
+        <li><a href="/donation_history">Donation History</a></li>
+        <li><a href="/report">Report</a></li>
+        {% if session.get('user_name') %}
+        <li><a href="/logout">Logout ({{ session['user_name'] }})</a></li>
+        {% endif %}
+    </ul>
+</div>
+
+<div class="container">
+    <h2 class="page-title">Donation History</h2>
+    <p>Total Donations: <strong>{{ history|length }}</strong></p>
+    <br>
+
+    {% if history %}
+    <div class="table-box">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Donor Name</th>
+                    <th>Blood Group</th>
+                    <th>Units</th>
+                    <th>Hospital</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for d in history %}
+                <tr>
+                    <td>{{ d['id'] }}</td>
+                    <td>{{ d['donor_name'] }}</td>
+                    <td><span class="badge">{{ d['blood_group'] }}</span></td>
+                    <td>{{ d['units'] }}</td>
+                    <td>{{ d['hospital_name'] }}</td>
+                    <td>{{ d['donation_date'] }}</td>
+                    <td><span class="status-badge status-{{ d['status']|lower }}">{{ d['status'] }}</span></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p>No donation history found.</p>
+    {% endif %}
+
+    <br>
+    <a href="/" class="btn btn-red">Back to Home</a>
+</div>
+
+<div class="footer">
+    <p>&copy; 2026 Blood Bank Management System</p>
+</div>
+</body>
+</html>

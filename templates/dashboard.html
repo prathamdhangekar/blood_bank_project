@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard - Blood Bank</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="navbar">
+    <a class="logo" href="/">Blood Bank</a>
+    <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/dashboard">Dashboard</a></li>
+        <li><a href="/view_donor">Donors</a></li>
+        <li><a href="/view_doctor">Doctors</a></li>
+        <li><a href="/view_patient">Patients</a></li>
+        <li><a href="/report">Report</a></li>
+        <li><a href="/logout">Logout ({{ session['user_name'] }})</a></li>
+    </ul>
+</div>
+
+<div class="container">
+
+    <h2 class="page-title">Welcome, {{ user['name'] }}!</h2>
+
+    <!-- PROFILE CARD -->
+    <div class="dashboard-card">
+        <h3 class="section-title">My Profile</h3>
+        <table>
+            <tbody>
+                <tr><td><strong>Name</strong></td><td>{{ user['name'] }}</td></tr>
+                <tr><td><strong>Role</strong></td><td>{{ session['user_role']|capitalize }}</td></tr>
+                <tr><td><strong>Age</strong></td><td>{{ user['age'] }}</td></tr>
+                <tr><td><strong>Gender</strong></td><td>{{ user['gender'] }}</td></tr>
+                <tr><td><strong>Blood Group</strong></td><td><span class="badge">{{ user['blood_group'] }}</span></td></tr>
+                <tr><td><strong>Mobile</strong></td><td>{{ user['mobile'] }}</td></tr>
+                <tr><td><strong>Email</strong></td><td>{{ user['email'] }}</td></tr>
+                <tr><td><strong>Address</strong></td><td>{{ user['address'] }}</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- DONOR SECTION -->
+    {% if role == 'donor' %}
+    <br>
+    <div class="dashboard-card">
+        <h3 class="section-title">Donation Status</h3>
+
+        {% if eligible %}
+        <div class="alert alert-success">
+            You are eligible to donate blood today!
+        </div>
+        <a href="/donate" class="btn btn-red">Donate Blood Now</a>
+        {% else %}
+        <div class="alert alert-error">
+            You donated recently. You can donate again after <strong>{{ next_date }}</strong>.
+            (Donors must wait 3 months between donations.)
+        </div>
+        {% endif %}
+    </div>
+
+    <br>
+    <div class="dashboard-card">
+        <h3 class="section-title">My Donation History</h3>
+        {% if donations %}
+        <div class="table-box">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Blood Group</th>
+                        <th>Units</th>
+                        <th>Hospital</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for d in donations %}
+                    <tr>
+                        <td>{{ d['donation_date'] }}</td>
+                        <td><span class="badge">{{ d['blood_group'] }}</span></td>
+                        <td>{{ d['units'] }}</td>
+                        <td>{{ d['hospital_name'] }}</td>
+                        <td><span class="status-badge status-{{ d['status']|lower }}">{{ d['status'] }}</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p>No donation history yet. <a href="/donate">Donate now</a>.</p>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- PATIENT SECTION -->
+    {% if role == 'patient' %}
+    <br>
+    <div class="dashboard-card">
+        <h3 class="section-title">Blood Request</h3>
+        <a href="/blood_request" class="btn btn-red">Request Blood</a>
+    </div>
+
+    <br>
+    <div class="dashboard-card">
+        <h3 class="section-title">My Blood Requests</h3>
+        {% if requests %}
+        <div class="table-box">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Blood Group</th>
+                        <th>Units</th>
+                        <th>Hospital</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in requests %}
+                    <tr>
+                        <td>{{ r['request_date'] }}</td>
+                        <td><span class="badge">{{ r['blood_group'] }}</span></td>
+                        <td>{{ r['units'] }}</td>
+                        <td>{{ r['hospital_name'] }}</td>
+                        <td><span class="status-badge status-{{ r['status']|lower }}">{{ r['status'] }}</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p>No blood requests yet. <a href="/blood_request">Request blood</a>.</p>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- DOCTOR SECTION -->
+    {% if role == 'doctor' %}
+    <br>
+    <div class="dashboard-card">
+        <h3 class="section-title">Quick Links</h3>
+        <a href="/view_donor" class="btn btn-red">View Donors</a>
+        &nbsp;
+        <a href="/view_patient" class="btn btn-blue">View Patients</a>
+        &nbsp;
+        <a href="/report" class="btn btn-blue">Blood Report</a>
+    </div>
+    {% endif %}
+
+</div>
+
+<div class="footer">
+    <p>&copy; 2026 Blood Bank Management System</p>
+</div>
+</body>
+</html>

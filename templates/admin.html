@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Panel - Blood Bank</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="navbar">
+    <a class="logo" href="/">Blood Bank</a>
+    <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/admin">Admin Panel</a></li>
+        <li><a href="/view_donor">Donors</a></li>
+        <li><a href="/view_doctor">Doctors</a></li>
+        <li><a href="/view_patient">Patients</a></li>
+        <li><a href="/donation_history">Donations</a></li>
+        <li><a href="/report">Report</a></li>
+        <li><a href="/logout">Logout</a></li>
+    </ul>
+</div>
+
+<div class="container">
+
+    <h2 class="page-title">Admin Panel</h2>
+
+    <!-- STATS -->
+    <div class="stats-row">
+        <div class="stat-box">
+            <div class="stat-number">{{ donors_count }}</div>
+            <div class="stat-label">Total Donors</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-number">{{ doctors_count }}</div>
+            <div class="stat-label">Total Doctors</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-number">{{ patients_count }}</div>
+            <div class="stat-label">Total Patients</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-number">{{ donations_count }}</div>
+            <div class="stat-label">Total Donations</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-number">{{ requests_count }}</div>
+            <div class="stat-label">Blood Requests</div>
+        </div>
+    </div>
+
+    <br>
+
+    <!-- BLOOD SUMMARY -->
+    <h3 class="section-title">Blood Stock Summary</h3>
+    <div class="table-box">
+        <table>
+            <thead>
+                <tr>
+                    <th>Blood Group</th>
+                    <th>Total Units Available</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in blood_summary %}
+                <tr>
+                    <td><span class="badge">{{ row['blood_group'] }}</span></td>
+                    <td>{{ row['total'] }} units</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <br>
+
+    <!-- RECENT BLOOD REQUESTS -->
+    <h3 class="section-title">Recent Blood Requests</h3>
+    {% if recent_requests %}
+    <div class="table-box">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Patient</th>
+                    <th>Blood Group</th>
+                    <th>Units</th>
+                    <th>Hospital</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Approve</th>
+                    <th>Reject</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in recent_requests %}
+                <tr>
+                    <td>{{ r['id'] }}</td>
+                    <td>{{ r['patient_name'] }}</td>
+                    <td><span class="badge">{{ r['blood_group'] }}</span></td>
+                    <td>{{ r['units'] }}</td>
+                    <td>{{ r['hospital_name'] }}</td>
+                    <td>{{ r['request_date'] }}</td>
+                    <td><span class="status-badge status-{{ r['status']|lower }}">{{ r['status'] }}</span></td>
+                    <td>
+                        {% if r['status'] == 'Pending' %}
+                        <a href="/admin/approve_request/{{ r['id'] }}" class="btn btn-blue btn-small">Approve</a>
+                        {% else %} - {% endif %}
+                    </td>
+                    <td>
+                        {% if r['status'] == 'Pending' %}
+                        <a href="/admin/reject_request/{{ r['id'] }}" class="btn btn-danger btn-small">Reject</a>
+                        {% else %} - {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p>No blood requests yet.</p>
+    {% endif %}
+
+    <br>
+
+    <!-- RECENT DONATIONS -->
+    <h3 class="section-title">Recent Donations</h3>
+    {% if recent_donations %}
+    <div class="table-box">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Donor Name</th>
+                    <th>Blood Group</th>
+                    <th>Units</th>
+                    <th>Hospital</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for d in recent_donations %}
+                <tr>
+                    <td>{{ d['id'] }}</td>
+                    <td>{{ d['donor_name'] }}</td>
+                    <td><span class="badge">{{ d['blood_group'] }}</span></td>
+                    <td>{{ d['units'] }}</td>
+                    <td>{{ d['hospital_name'] }}</td>
+                    <td>{{ d['donation_date'] }}</td>
+                    <td><span class="status-badge status-{{ d['status']|lower }}">{{ d['status'] }}</span></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p>No donations yet.</p>
+    {% endif %}
+
+    <br>
+
+    <!-- QUICK LINKS -->
+    <h3 class="section-title">Manage</h3>
+    <a href="/view_donor" class="btn btn-red">Manage Donors</a>&nbsp;
+    <a href="/view_doctor" class="btn btn-red">Manage Doctors</a>&nbsp;
+    <a href="/view_patient" class="btn btn-red">Manage Patients</a>&nbsp;
+    <a href="/donation_history" class="btn btn-blue">All Donations</a>&nbsp;
+    <a href="/report" class="btn btn-blue">Blood Report</a>
+
+</div>
+
+<div class="footer">
+    <p>&copy; 2026 Blood Bank Management System</p>
+</div>
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Request Blood - Blood Bank</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="navbar">
+    <a class="logo" href="/">Blood Bank</a>
+    <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/dashboard">Dashboard</a></li>
+        <li><a href="/report">Report</a></li>
+        <li><a href="/logout">Logout ({{ session['user_name'] }})</a></li>
+    </ul>
+</div>
+
+<div class="container">
+    <h2 class="page-title">Request Blood</h2>
+
+    {% if message %}
+    <div class="alert alert-error">{{ message }}</div>
+    {% endif %}
+
+    <div class="form-box">
+        <form method="POST" action="/blood_request">
+
+            <div class="form-group">
+                <label>Patient Name</label>
+                <input type="text" value="{{ patient['name'] }}" disabled>
+            </div>
+
+            <div class="form-group">
+                <label>Blood Group Required</label>
+                <input type="text" value="{{ patient['blood_group'] }}" disabled>
+            </div>
+
+            <div class="form-group">
+                <label>Select Hospital</label>
+                <select name="hospital_name" required>
+                    <option value="">-- Select Hospital --</option>
+                    {% for h in hospitals %}
+                    <option value="{{ h['name'] }}">{{ h['name'] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Units Required</label>
+                <select name="units">
+                    <option value="1">1 Unit</option>
+                    <option value="2">2 Units</option>
+                    <option value="3">3 Units</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Submit Request" class="btn btn-red">
+                <a href="/dashboard" class="btn btn-blue">Cancel</a>
+            </div>
+
+        </form>
+    </div>
+
+</div>
+
+<div class="footer">
+    <p>&copy; 2026 Blood Bank Management System</p>
+</div>
+</body>
+</html>

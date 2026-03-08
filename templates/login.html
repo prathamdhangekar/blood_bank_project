@@ -16,14 +16,10 @@
         <li><a href="/view_doctor">Doctors</a></li>
         <li><a href="/view_patient">Patients</a></li>
         <li><a href="/report">Report</a></li>
-        {% if session.get('user_name') %}
-        <li><a href="/logout">Logout ({{ session['user_name'] }})</a></li>
-        {% endif %}
     </ul>
 </div>
 
 <div class="container">
-
     <h2 class="page-title">Login</h2>
 
     {% if message %}
@@ -39,6 +35,7 @@
                     <option value="donor">Donor</option>
                     <option value="doctor">Doctor</option>
                     <option value="patient">Patient</option>
+                    <option value="admin">Admin</option>
                 </select>
             </div>
 
@@ -49,7 +46,7 @@
 
             <div class="form-group">
                 <label>Password</label>
-                <input type="password" name="password" placeholder="Enter your password" minlength="8" required>
+                <input type="password" name="password" placeholder="Enter your password" required>
             </div>
 
             <div class="form-group">
@@ -57,15 +54,12 @@
             </div>
 
         </form>
-
         <p class="text-small text-center mt-10">Not registered yet? <a href="/register">Register here</a></p>
     </div>
-
 </div>
 
 <div class="footer">
     <p>&copy; 2026 Blood Bank Management System</p>
 </div>
-
 </body>
 </html>
