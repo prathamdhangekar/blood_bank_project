@@ -47,7 +47,9 @@
                 <tr>
                     <th>ID</th><th>Name</th><th>Age</th><th>Gender</th>
                     <th>Blood Group</th><th>Mobile</th><th>Address</th>
-                    <th>Email</th><th>Edit</th><th>Delete</th>
+                    <th>Email</th>
+                    {% if session.get('user_name') %}<th>Edit</th>{% endif %}
+                    {% if session.get('user_role') == 'admin' %}<th>Delete</th>{% endif %}
                 </tr>
             </thead>
             <tbody>
@@ -61,8 +63,21 @@
                     <td>{{ donor['mobile'] }}</td>
                     <td>{{ donor['address'] }}</td>
                     <td>{{ donor['email'] }}</td>
-                    <td><a href="/edit_donor/{{ donor['id'] }}" class="btn btn-blue btn-small">Edit</a></td>
-                    <td><a href="/delete_donor/{{ donor['id'] }}" class="btn btn-danger btn-small" onclick="return confirm('Are you sure?')">Delete</a></td>
+                    {% if session.get('user_name') %}
+                    <td>
+                        {% if session.get('user_role') == 'admin' or (session.get('user_role') == 'donor' and session.get('user_id') == donor['id']) %}
+                        <a href="/edit_donor/{{ donor['id'] }}" class="btn btn-blue btn-small">Edit</a>
+                        {% else %}
+                        -
+                        {% endif %}
+                    </td>
+                    {% endif %}
+                    {% if session.get('user_role') == 'admin' %}
+                    <td>
+                        <a href="/delete_donor/{{ donor['id'] }}" class="btn btn-danger btn-small"
+                           onclick="return confirm('Are you sure you want to delete this donor?')">Delete</a>
+                    </td>
+                    {% endif %}
                 </tr>
                 {% endfor %}
             </tbody>
