@@ -101,37 +101,71 @@ def init_db():
         doctor_note TEXT,
         admin_note TEXT)''')
 
-    cur.execute('''CREATE TABLE IF NOT EXISTS appointment (
-        id SERIAL PRIMARY KEY,
-        donor_id INTEGER REFERENCES donor(id) ON DELETE CASCADE,
-        donor_name TEXT NOT NULL, blood_group TEXT NOT NULL,
-        hospital_name TEXT NOT NULL,
-        appointment_date DATE NOT NULL,
-        appointment_time TEXT NOT NULL,
-        status TEXT DEFAULT 'Scheduled',
-        note TEXT)''')
+    conn.commit()
+    conn.close()
 
-    # Sample hospital data
-    cur.execute("SELECT COUNT(*) FROM hospital")
-    if cur.fetchone()[0] == 0:
-        cur.executemany("INSERT INTO hospital (name, address, mobile, email) VALUES (%s,%s,%s,%s)", [
+    # Migrate old blood_request table — add new columns if missing
+    # Each ALTER runs in its own autocommit connection to avoid transaction failures
+    new_cols = [
+        ("urgency",       "TEXT DEFAULT 'Normal'"),
+        ("reason",        "TEXT"),
+        ("required_date", "DATE"),
+        ("doctor_status", "TEXT DEFAULT 'Pending'"),
+        ("admin_status",  "TEXT DEFAULT 'Pending'"),
+        ("doctor_id",     "INTEGER"),
+        ("doctor_note",   "TEXT"),
+        ("admin_note",    "TEXT"),
+    ]
+    for col, coltype in new_cols:
+        try:
+            mc = psycopg2.connect(DATABASE_URL)
+            mc.autocommit = True
+            mx = mc.cursor()
+            mx.execute(f"ALTER TABLE blood_request ADD COLUMN IF NOT EXISTS {col} {coltype}")
+            mc.close()
+        except Exception:
+            try: mc.close()
+            except: pass
+
+    # Create appointment table if not exists
+    try:
+        ac = psycopg2.connect(DATABASE_URL)
+        ac.autocommit = True
+        ax = ac.cursor()
+        ax.execute('''CREATE TABLE IF NOT EXISTS appointment (
+            id SERIAL PRIMARY KEY,
+            donor_id INTEGER REFERENCES donor(id) ON DELETE CASCADE,
+            donor_name TEXT NOT NULL, blood_group TEXT NOT NULL,
+            hospital_name TEXT NOT NULL,
+            appointment_date DATE NOT NULL,
+            appointment_time TEXT NOT NULL,
+            status TEXT DEFAULT 'Scheduled',
+            note TEXT)''')
+        ac.close()
+    except Exception:
+        try: ac.close()
+        except: pass
+
+    # Insert sample data if empty
+    sc = psycopg2.connect(DATABASE_URL)
+    scur = sc.cursor()
+    scur.execute("SELECT COUNT(*) FROM hospital")
+    if scur.fetchone()[0] == 0:
+        scur.executemany("INSERT INTO hospital (name, address, mobile, email) VALUES (%s,%s,%s,%s)", [
             ('City Hospital',        '123 Main Street, City', '9876543210', 'city@hospital.com'),
             ('Green Cross Hospital', '456 Park Road, Town',   '9876543211', 'green@hospital.com'),
             ('Sunrise Medical',      '789 Lake View, Metro',  '9876543212', 'sunrise@hospital.com'),
         ])
-
-    # Sample blood bank data
-    cur.execute("SELECT COUNT(*) FROM blood_bank")
-    if cur.fetchone()[0] == 0:
-        cur.executemany("INSERT INTO blood_bank (blood_group, available_units, hospital_name) VALUES (%s,%s,%s)", [
+    scur.execute("SELECT COUNT(*) FROM blood_bank")
+    if scur.fetchone()[0] == 0:
+        scur.executemany("INSERT INTO blood_bank (blood_group, available_units, hospital_name) VALUES (%s,%s,%s)", [
             ('A+',  15, 'City Hospital'),   ('A-',  8,  'City Hospital'),
             ('B+',  20, 'Green Cross Hospital'), ('B-', 3, 'Green Cross Hospital'),
             ('O+',  25, 'Sunrise Medical'), ('O-',  4,  'Sunrise Medical'),
             ('AB+', 12, 'City Hospital'),   ('AB-', 2,  'Green Cross Hospital'),
         ])
-
-    conn.commit()
-    conn.close()
+    sc.commit()
+    sc.close()
 
 
 # ============================================
