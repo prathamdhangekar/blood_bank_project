@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Blood Bank Report</title>
+    <title>Blood Bank Report - Blood Bank</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
@@ -10,56 +10,35 @@
     <a class="logo" href="/">Blood Bank</a>
     <ul>
         <li><a href="/">Home</a></li>
-        <li><a href="/register">Register</a></li>
-        <li><a href="/login">Login</a></li>
-        <li><a href="/view_donor">Donors</a></li>
-        <li><a href="/view_doctor">Doctors</a></li>
-        <li><a href="/view_patient">Patients</a></li>
+        {% if is_logged_in %}<li><a href="/dashboard">Dashboard</a></li>{% endif %}
+        <li><a href="/search_donors">Find Donors</a></li>
         <li><a href="/report">Report</a></li>
-        {% if session.get('user_name') %}
+        {% if is_logged_in %}
         <li><a href="/logout">Logout ({{ session['user_name'] }})</a></li>
+        {% else %}
+        <li><a href="/login">Login</a></li>
         {% endif %}
     </ul>
 </div>
 
 <div class="container">
-
     <h2 class="page-title">Blood Bank Report</h2>
 
+    <!-- LOW STOCK ALERT -->
+    {% if low_stock %}
+    <div class="alert alert-error">
+        &#9888; <strong>Low Stock Alert!</strong> The following blood groups are running low (below {{ low_threshold }} units):
+        {% for item in low_stock %}
+        <strong>{{ item['blood_group'] }}</strong> at {{ item['hospital_name'] }} ({{ item['available_units'] }} units left){% if not loop.last %}, {% endif %}
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- SUMMARY BY BLOOD GROUP -->
     <div class="report-header">
-        <h2>Available Blood Units</h2>
-        <p>Current stock of blood units by blood group and hospital</p>
+        <h2>Blood Stock Summary</h2>
+        <p>Total available units across all hospitals by blood group</p>
     </div>
-
-    {% if report_data %}
-    <div class="table-box">
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Blood Group</th>
-                    <th>Available Units</th>
-                    <th>Hospital Name</th>
-                    <th>Last Updated</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for row in report_data %}
-                <tr>
-                    <td>{{ row['id'] }}</td>
-                    <td><span class="badge">{{ row['blood_group'] }}</span></td>
-                    <td>{{ row['available_units'] }} units</td>
-                    <td>{{ row['hospital_name'] }}</td>
-                    <td>{{ row['last_updated'] }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-
-    <br>
-
-    <h2 class="page-title">Summary by Blood Group</h2>
 
     <div class="table-box">
         <table>
@@ -67,6 +46,7 @@
                 <tr>
                     <th>Blood Group</th>
                     <th>Total Units Available</th>
+                    <th>Status</th>
                 </tr>
             </thead>
             <tbody>
@@ -74,24 +54,88 @@
                 <tr>
                     <td><span class="badge">{{ row['blood_group'] }}</span></td>
                     <td>{{ row['total'] }} units</td>
+                    <td>
+                        {% if row['total'] < low_threshold %}
+                        <span class="status-badge status-rejected">Low Stock</span>
+                        {% elif row['total'] < 10 %}
+                        <span class="status-badge status-pending">Moderate</span>
+                        {% else %}
+                        <span class="status-badge status-completed">Available</span>
+                        {% endif %}
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
 
-    {% else %}
-    <p>No blood bank data available at the moment.</p>
-    {% endif %}
+    <br>
+
+    <!-- HOSPITAL WISE REPORT -->
+    <h2 class="page-title">Hospital-wise Stock</h2>
+    <div class="table-box">
+        <table>
+            <thead>
+                <tr>
+                    <th>Hospital</th>
+                    <th>Total Units</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in hospital_summary %}
+                <tr>
+                    <td>{{ row['hospital_name'] }}</td>
+                    <td>{{ row['total'] }} units</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <br>
+
+    <!-- DETAILED REPORT -->
+    <h2 class="page-title">Detailed Stock by Hospital</h2>
+    <div class="table-box">
+        <table>
+            <thead>
+                <tr>
+                    <th>Blood Group</th>
+                    <th>Available Units</th>
+                    <th>Hospital</th>
+                    <th>Last Updated</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in report_data %}
+                <tr>
+                    <td><span class="badge">{{ row['blood_group'] }}</span></td>
+                    <td>{{ row['available_units'] }} units</td>
+                    <td>{{ row['hospital_name'] }}</td>
+                    <td>{{ row['last_updated'] }}</td>
+                    <td>
+                        {% if row['available_units'] < low_threshold %}
+                        <span class="status-badge status-rejected">Low Stock</span>
+                        {% else %}
+                        <span class="status-badge status-completed">Available</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
     <br>
     <a href="/" class="btn btn-red">Back to Home</a>
+    &nbsp;
+    <a href="/search_donors" class="btn btn-blue">Find Donors</a>
 
 </div>
 
 <div class="footer">
     <p>&copy; 2026 Blood Bank Management System</p>
 </div>
-
 </body>
 </html>

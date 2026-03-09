@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Donation Certificate - Blood Bank</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .certificate {
+            border: 4px solid #cc0000;
+            border-radius: 10px;
+            padding: 40px;
+            max-width: 680px;
+            margin: 30px auto;
+            text-align: center;
+            background: white;
+        }
+        .certificate h1 { color: #cc0000; font-size: 28px; margin-bottom: 6px; }
+        .certificate h2 { font-size: 20px; color: #333; margin-bottom: 20px; }
+        .certificate .donor-name { font-size: 26px; color: #cc0000; font-weight: bold; margin: 16px 0; }
+        .certificate .details { font-size: 15px; color: #555; line-height: 2; }
+        .certificate .seal { font-size: 60px; margin: 20px 0; }
+        .certificate .footer-note { font-size: 12px; color: #999; margin-top: 20px; }
+        @media print { .no-print { display: none; } }
+    </style>
+</head>
+<body>
+
+<div class="navbar no-print">
+    <a class="logo" href="/">Blood Bank</a>
+    <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/dashboard">Dashboard</a></li>
+        <li><a href="/logout">Logout ({{ session['user_name'] }})</a></li>
+    </ul>
+</div>
+
+<div class="container">
+
+    <div class="certificate">
+        <div class="seal">&#10084;</div>
+        <h1>Blood Donation Certificate</h1>
+        <h2>Blood Bank Management System</h2>
+        <hr>
+        <p>This is to certify that</p>
+        <div class="donor-name">{{ donor['name'] }}</div>
+        <div class="details">
+            <p>has successfully donated blood on <strong>{{ donation['donation_date'] }}</strong></p>
+            <p>Blood Group: <strong>{{ donor['blood_group'] }}</strong></p>
+            <p>Units Donated: <strong>{{ donation['units'] }}</strong></p>
+            <p>Hospital: <strong>{{ donation['hospital_name'] }}</strong></p>
+            <p>Status: <strong>{{ donation['status'] }}</strong></p>
+        </div>
+        <hr>
+        <p>Your donation can save up to <strong>3 lives</strong>.</p>
+        <p>Thank you for your generous contribution!</p>
+        <div class="footer-note">
+            Blood Bank Management System &nbsp;|&nbsp; &copy; 2026
+        </div>
+    </div>
+
+    <div class="text-center no-print">
+        <button onclick="window.print()" class="btn btn-red">Print Certificate</button>
+        &nbsp;
+        <a href="/dashboard" class="btn btn-blue">Back to Dashboard</a>
+    </div>
+
+</div>
+</body>
+</html>

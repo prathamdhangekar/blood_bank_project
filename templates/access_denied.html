@@ -5,31 +5,25 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-
 <div class="navbar">
     <a class="logo" href="/">Blood Bank</a>
     <ul>
         <li><a href="/">Home</a></li>
         <li><a href="/login">Login</a></li>
-        <li><a href="/register">Register</a></li>
     </ul>
 </div>
-
 <div class="container">
     <div class="thankyou-box">
-        <div class="big-icon">&#128683;</div>
+        <div style="font-size:64px;">&#128683;</div>
         <h2 style="color:#cc0000;">Access Denied</h2>
-        <p>You do not have permission to access this page.</p>
-        <p>Please login with the correct account to continue.</p>
+        <p>You do not have permission to view this page.</p>
+        <p>Please login with the correct account.</p>
         <br>
         <a href="/login" class="btn btn-red">Login</a>
         &nbsp;
         <a href="/" class="btn btn-blue">Back to Home</a>
     </div>
 </div>
-
-<div class="footer">
-    <p>&copy; 2026 Blood Bank Management System</p>
-</div>
+<div class="footer"><p>&copy; 2026 Blood Bank Management System</p></div>
 </body>
 </html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Manage Requests - Blood Bank</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="navbar">
+    <a class="logo" href="/">Blood Bank</a>
+    <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/dashboard">Dashboard</a></li>
+        {% if is_admin %}
+        <li><a href="/admin">Admin Panel</a></li>
+        {% endif %}
+        <li><a href="/report">Report</a></li>
+        <li><a href="/logout">Logout ({{ session['user_name'] }})</a></li>
+    </ul>
+</div>
+
+<div class="container">
+    <h2 class="page-title">
+        {% if is_admin %}Pending Admin Approval{% else %}Pending Doctor Review{% endif %}
+    </h2>
+
+    {% if requests %}
+    <div class="table-box">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Patient</th>
+                    <th>Blood Group</th>
+                    <th>Units</th>
+                    <th>Hospital</th>
+                    <th>Urgency</th>
+                    <th>Reason</th>
+                    <th>Required By</th>
+                    <th>Date</th>
+                    <th>Doctor Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in requests %}
+                <tr>
+                    <td>{{ r['id'] }}</td>
+                    <td>{{ r['patient_name'] }}</td>
+                    <td><span class="badge">{{ r['blood_group'] }}</span></td>
+                    <td>{{ r['units'] }}</td>
+                    <td>{{ r['hospital_name'] }}</td>
+                    <td><span class="urgency-{{ r['urgency']|lower }}">{{ r['urgency'] }}</span></td>
+                    <td>{{ r['reason'] or '-' }}</td>
+                    <td>{{ r['required_date'] or '-' }}</td>
+                    <td>{{ r['request_date'] }}</td>
+                    <td><span class="status-badge status-{{ r['doctor_status']|lower }}">{{ r['doctor_status'] }}</span></td>
+                    <td>
+                        {% if is_doctor and not is_admin %}
+                        <form method="POST" action="/doctor_action/{{ r['id'] }}/approve" style="display:inline;">
+                            <input type="text" name="note" placeholder="Note (optional)" style="width:120px; padding:4px; font-size:12px; border:1px solid #ccc; border-radius:4px;">
+                            <button type="submit" class="btn btn-blue btn-small">Approve</button>
+                        </form>
+                        <form method="POST" action="/doctor_action/{{ r['id'] }}/reject" style="display:inline;">
+                            <input type="text" name="note" placeholder="Reason" style="width:120px; padding:4px; font-size:12px; border:1px solid #ccc; border-radius:4px;">
+                            <button type="submit" class="btn btn-danger btn-small">Reject</button>
+                        </form>
+                        {% endif %}
+                        {% if is_admin %}
+                        <form method="POST" action="/admin_action/{{ r['id'] }}/approve" style="display:inline;">
+                            <input type="text" name="note" placeholder="Note (optional)" style="width:100px; padding:4px; font-size:12px; border:1px solid #ccc; border-radius:4px;">
+                            <button type="submit" class="btn btn-blue btn-small">Confirm</button>
+                        </form>
+                        <form method="POST" action="/admin_action/{{ r['id'] }}/reject" style="display:inline;">
+                            <input type="text" name="note" placeholder="Reason" style="width:100px; padding:4px; font-size:12px; border:1px solid #ccc; border-radius:4px;">
+                            <button type="submit" class="btn btn-danger btn-small">Reject</button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-success">No pending requests at this time.</div>
+    {% endif %}
+
+    <br>
+    <a href="/dashboard" class="btn btn-red">Back to Dashboard</a>
+</div>
+
+<div class="footer">
+    <p>&copy; 2026 Blood Bank Management System</p>
+</div>
+</body>
+</html>

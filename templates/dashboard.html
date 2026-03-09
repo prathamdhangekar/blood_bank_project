@@ -11,16 +11,32 @@
     <ul>
         <li><a href="/">Home</a></li>
         <li><a href="/dashboard">Dashboard</a></li>
+        {% if is_admin or is_doctor %}
         <li><a href="/view_donor">Donors</a></li>
-        <li><a href="/view_doctor">Doctors</a></li>
         <li><a href="/view_patient">Patients</a></li>
+        {% endif %}
+        <li><a href="/search_donors">Find Donors</a></li>
         <li><a href="/report">Report</a></li>
+        <li>
+            <a href="/manage_requests">Requests
+                {% if pending_count > 0 %}<span class="badge-count">{{ pending_count }}</span>{% endif %}
+            </a>
+        </li>
         <li><a href="/logout">Logout ({{ session['user_name'] }})</a></li>
     </ul>
 </div>
 
-<div class="container">
+{% if low_stock and (is_admin or is_doctor) %}
+<div class="low-stock-bar">
+    &#9888; Low Stock:
+    {% for item in low_stock %}
+    <strong>{{ item['blood_group'] }}</strong> at {{ item['hospital_name'] }} ({{ item['available_units'] }} units)
+    {% if not loop.last %} | {% endif %}
+    {% endfor %}
+</div>
+{% endif %}
 
+<div class="container">
     <h2 class="page-title">Welcome, {{ user['name'] }}!</h2>
 
     <!-- PROFILE CARD -->
@@ -38,6 +54,8 @@
                 <tr><td><strong>Address</strong></td><td>{{ user['address'] }}</td></tr>
             </tbody>
         </table>
+        <br>
+        <a href="/edit_{{ role }}/{{ user['id'] }}" class="btn btn-blue btn-small">Edit Profile</a>
     </div>
 
     <!-- DONOR SECTION -->
@@ -45,17 +63,43 @@
     <br>
     <div class="dashboard-card">
         <h3 class="section-title">Donation Status</h3>
-
         {% if eligible %}
-        <div class="alert alert-success">
-            You are eligible to donate blood today!
-        </div>
+        <div class="alert alert-success">You are eligible to donate blood today!</div>
         <a href="/donate" class="btn btn-red">Donate Blood Now</a>
+        &nbsp;
+        <a href="/appointment" class="btn btn-blue">Book Appointment</a>
         {% else %}
         <div class="alert alert-error">
             You donated recently. You can donate again after <strong>{{ next_date }}</strong>.
-            (Donors must wait 3 months between donations.)
+            (Minimum 3 months gap required between donations.)
         </div>
+        <a href="/appointment" class="btn btn-blue">Book Future Appointment</a>
+        {% endif %}
+    </div>
+
+    <br>
+    <div class="dashboard-card">
+        <h3 class="section-title">My Appointments</h3>
+        {% if appointments %}
+        <div class="table-box">
+            <table>
+                <thead>
+                    <tr><th>Date</th><th>Time</th><th>Hospital</th><th>Status</th></tr>
+                </thead>
+                <tbody>
+                    {% for a in appointments %}
+                    <tr>
+                        <td>{{ a['appointment_date'] }}</td>
+                        <td>{{ a['appointment_time'] }}</td>
+                        <td>{{ a['hospital_name'] }}</td>
+                        <td><span class="status-badge status-{{ a['status']|lower }}">{{ a['status'] }}</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p>No appointments booked. <a href="/appointment">Book now</a>.</p>
         {% endif %}
     </div>
 
@@ -66,13 +110,7 @@
         <div class="table-box">
             <table>
                 <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Blood Group</th>
-                        <th>Units</th>
-                        <th>Hospital</th>
-                        <th>Status</th>
-                    </tr>
+                    <tr><th>Date</th><th>Blood Group</th><th>Units</th><th>Hospital</th><th>Status</th><th>Certificate</th></tr>
                 </thead>
                 <tbody>
                     {% for d in donations %}
@@ -82,6 +120,7 @@
                         <td>{{ d['units'] }}</td>
                         <td>{{ d['hospital_name'] }}</td>
                         <td><span class="status-badge status-{{ d['status']|lower }}">{{ d['status'] }}</span></td>
+                        <td><a href="/certificate/{{ d['donor_id'] }}" class="btn btn-blue btn-small">Download</a></td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -98,6 +137,7 @@
     <br>
     <div class="dashboard-card">
         <h3 class="section-title">Blood Request</h3>
+        <p>Compatible blood groups for <span class="badge">{{ user['blood_group'] }}</span>: A+, A-, O+, O- (based on your group)</p>
         <a href="/blood_request" class="btn btn-red">Request Blood</a>
     </div>
 
@@ -108,13 +148,7 @@
         <div class="table-box">
             <table>
                 <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Blood Group</th>
-                        <th>Units</th>
-                        <th>Hospital</th>
-                        <th>Status</th>
-                    </tr>
+                    <tr><th>Date</th><th>Blood Group</th><th>Units</th><th>Hospital</th><th>Urgency</th><th>Doctor</th><th>Admin</th></tr>
                 </thead>
                 <tbody>
                     {% for r in requests %}
@@ -123,7 +157,9 @@
                         <td><span class="badge">{{ r['blood_group'] }}</span></td>
                         <td>{{ r['units'] }}</td>
                         <td>{{ r['hospital_name'] }}</td>
-                        <td><span class="status-badge status-{{ r['status']|lower }}">{{ r['status'] }}</span></td>
+                        <td><span class="urgency-{{ r['urgency']|lower }}">{{ r['urgency'] }}</span></td>
+                        <td><span class="status-badge status-{{ r['doctor_status']|lower }}">{{ r['doctor_status'] }}</span></td>
+                        <td><span class="status-badge status-{{ r['admin_status']|lower }}">{{ r['admin_status'] }}</span></td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -139,12 +175,37 @@
     {% if role == 'doctor' %}
     <br>
     <div class="dashboard-card">
-        <h3 class="section-title">Quick Links</h3>
-        <a href="/view_donor" class="btn btn-red">View Donors</a>
+        <h3 class="section-title">Pending Blood Requests
+            {% if pending_count > 0 %}<span class="badge-count">{{ pending_count }}</span>{% endif %}
+        </h3>
+        {% if requests %}
+        <div class="table-box">
+            <table>
+                <thead>
+                    <tr><th>Patient</th><th>Blood Group</th><th>Units</th><th>Hospital</th><th>Urgency</th><th>Date</th><th>Action</th></tr>
+                </thead>
+                <tbody>
+                    {% for r in requests %}
+                    <tr>
+                        <td>{{ r['patient_name'] }}</td>
+                        <td><span class="badge">{{ r['blood_group'] }}</span></td>
+                        <td>{{ r['units'] }}</td>
+                        <td>{{ r['hospital_name'] }}</td>
+                        <td><span class="urgency-{{ r['urgency']|lower }}">{{ r['urgency'] }}</span></td>
+                        <td>{{ r['request_date'] }}</td>
+                        <td><a href="/manage_requests" class="btn btn-blue btn-small">Review</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p>No pending requests.</p>
+        {% endif %}
+        <br>
+        <a href="/manage_requests" class="btn btn-red">Manage All Requests</a>
         &nbsp;
-        <a href="/view_patient" class="btn btn-blue">View Patients</a>
-        &nbsp;
-        <a href="/report" class="btn btn-blue">Blood Report</a>
+        <a href="/manage_appointments" class="btn btn-blue">Manage Appointments</a>
     </div>
     {% endif %}
 

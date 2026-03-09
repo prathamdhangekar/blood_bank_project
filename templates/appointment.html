@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Book Appointment - Blood Bank</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="navbar">
+    <a class="logo" href="/">Blood Bank</a>
+    <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/dashboard">Dashboard</a></li>
+        <li><a href="/logout">Logout ({{ session['user_name'] }})</a></li>
+    </ul>
+</div>
+
+<div class="container">
+    <h2 class="page-title">Book Donation Appointment</h2>
+
+    {% if message %}
+    <div class="alert alert-error">{{ message }}</div>
+    {% endif %}
+
+    <div class="form-box">
+        <form method="POST" action="/appointment">
+
+            <div class="form-group">
+                <label>Donor Name</label>
+                <input type="text" value="{{ donor['name'] }}" disabled>
+            </div>
+
+            <div class="form-group">
+                <label>Blood Group</label>
+                <input type="text" value="{{ donor['blood_group'] }}" disabled>
+            </div>
+
+            <div class="form-group">
+                <label>Select Hospital</label>
+                <select name="hospital_name" required>
+                    <option value="">-- Select Hospital --</option>
+                    {% for h in hospitals %}
+                    <option value="{{ h['name'] }}">{{ h['name'] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Appointment Date</label>
+                <input type="date" name="appointment_date" required>
+            </div>
+
+            <div class="form-group">
+                <label>Appointment Time</label>
+                <select name="appointment_time" required>
+                    <option value="09:00 AM">09:00 AM</option>
+                    <option value="10:00 AM">10:00 AM</option>
+                    <option value="11:00 AM">11:00 AM</option>
+                    <option value="12:00 PM">12:00 PM</option>
+                    <option value="02:00 PM">02:00 PM</option>
+                    <option value="03:00 PM">03:00 PM</option>
+                    <option value="04:00 PM">04:00 PM</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Note (optional)</label>
+                <input type="text" name="note" placeholder="Any special note or message...">
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Book Appointment" class="btn btn-red">
+                <a href="/dashboard" class="btn btn-blue">Cancel</a>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<div class="footer">
+    <p>&copy; 2026 Blood Bank Management System</p>
+</div>
+</body>
+</html>

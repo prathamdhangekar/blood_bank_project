@@ -11,11 +11,9 @@
     <ul>
         <li><a href="/">Home</a></li>
         <li><a href="/dashboard">Dashboard</a></li>
-        <li><a href="/donation_history">Donation History</a></li>
+        {% if is_admin %}<li><a href="/admin">Admin Panel</a></li>{% endif %}
         <li><a href="/report">Report</a></li>
-        {% if session.get('user_name') %}
         <li><a href="/logout">Logout ({{ session['user_name'] }})</a></li>
-        {% endif %}
     </ul>
 </div>
 
@@ -29,13 +27,8 @@
         <table>
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Donor Name</th>
-                    <th>Blood Group</th>
-                    <th>Units</th>
-                    <th>Hospital</th>
-                    <th>Date</th>
-                    <th>Status</th>
+                    <th>ID</th><th>Donor Name</th><th>Blood Group</th>
+                    <th>Units</th><th>Hospital</th><th>Date</th><th>Status</th>
                 </tr>
             </thead>
             <tbody>

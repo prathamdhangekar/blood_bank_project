@@ -10,31 +10,68 @@
     <a class="logo" href="/">Blood Bank</a>
     <ul>
         <li><a href="/">Home</a></li>
+        {% if is_logged_in %}
+        <li><a href="/dashboard">Dashboard</a></li>
+        {% endif %}
+        {% if not is_logged_in %}
         <li><a href="/register">Register</a></li>
         <li><a href="/login">Login</a></li>
+        {% endif %}
+        {% if is_admin or is_doctor %}
         <li><a href="/view_donor">Donors</a></li>
-        <li><a href="/view_doctor">Doctors</a></li>
         <li><a href="/view_patient">Patients</a></li>
+        {% endif %}
+        {% if is_admin %}
+        <li><a href="/view_doctor">Doctors</a></li>
+        <li><a href="/admin">Admin Panel</a></li>
+        {% endif %}
+        <li><a href="/search_donors">Find Donors</a></li>
         <li><a href="/report">Report</a></li>
-        {% if session.get('user_name') %}
+        {% if is_logged_in %}
+        <li>
+            <a href="/manage_requests">
+                Requests
+                {% if pending_count > 0 %}
+                <span class="badge-count">{{ pending_count }}</span>
+                {% endif %}
+            </a>
+        </li>
         <li><a href="/logout">Logout ({{ session['user_name'] }})</a></li>
         {% endif %}
     </ul>
 </div>
 
+<!-- LOW STOCK ALERT -->
+{% if low_stock and (is_admin or is_doctor) %}
+<div class="low-stock-bar">
+    &#9888; Low Stock Alert:
+    {% for item in low_stock %}
+    <strong>{{ item['blood_group'] }}</strong> at {{ item['hospital_name'] }} ({{ item['available_units'] }} units left)
+    {% if not loop.last %} | {% endif %}
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- HERO -->
 <div class="hero">
     <h1>Blood Bank Management System</h1>
-    <p>Connecting donors, doctors and patients to save lives.</p>
-    <a href="/register">Register</a>
+    <p>Saving lives by connecting donors, doctors and patients.</p>
+    {% if not is_logged_in %}
+    <a href="/register">Register Now</a>
     <a href="/login">Login</a>
-    <a href="/report">View Report</a>
+    {% else %}
+    <a href="/dashboard">Go to Dashboard</a>
+    {% endif %}
+    <a href="/search_donors">Find Blood Donors</a>
+    <a href="/report">View Blood Report</a>
 </div>
 
+<!-- CONTENT -->
 <div class="container">
 
     <h2 class="page-title">Quick Links</h2>
-
     <div class="card-row">
+        {% if not is_logged_in %}
         <a class="card" href="/register">
             <div class="card-icon">&#128394;</div>
             <div class="card-label">Register</div>
@@ -43,64 +80,77 @@
             <div class="card-icon">&#128274;</div>
             <div class="card-label">Login</div>
         </a>
-        <a class="card" href="/view_donor">
-            <div class="card-icon">&#129656;</div>
-            <div class="card-label">View Donors</div>
+        {% endif %}
+        {% if is_logged_in %}
+        <a class="card" href="/dashboard">
+            <div class="card-icon">&#127968;</div>
+            <div class="card-label">Dashboard</div>
         </a>
-        <a class="card" href="/view_doctor">
-            <div class="card-icon">&#129657;</div>
-            <div class="card-label">View Doctors</div>
-        </a>
-        <a class="card" href="/view_patient">
-            <div class="card-icon">&#128137;</div>
-            <div class="card-label">View Patients</div>
+        {% endif %}
+        <a class="card" href="/search_donors">
+            <div class="card-icon">&#128269;</div>
+            <div class="card-label">Find Donors</div>
         </a>
         <a class="card" href="/report">
             <div class="card-icon">&#128202;</div>
             <div class="card-label">Blood Report</div>
         </a>
+        {% if is_admin or is_doctor %}
+        <a class="card" href="/view_donor">
+            <div class="card-icon">&#129656;</div>
+            <div class="card-label">View Donors</div>
+        </a>
+        <a class="card" href="/view_patient">
+            <div class="card-icon">&#128137;</div>
+            <div class="card-label">View Patients</div>
+        </a>
+        <a class="card" href="/manage_requests">
+            <div class="card-icon">&#128203;</div>
+            <div class="card-label">Requests
+                {% if pending_count > 0 %}
+                <span class="badge-count">{{ pending_count }}</span>
+                {% endif %}
+            </div>
+        </a>
+        {% endif %}
+        {% if is_admin %}
+        <a class="card" href="/admin">
+            <div class="card-icon">&#9881;</div>
+            <div class="card-label">Admin Panel</div>
+        </a>
+        {% endif %}
     </div>
 
     <br><br>
 
-    <h2 class="page-title">About This System</h2>
-
-    <table>
-        <thead>
-            <tr>
-                <th>Feature</th>
-                <th>Description</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>Donor Management</td>
-                <td>Register, view, edit and delete blood donors.</td>
-            </tr>
-            <tr>
-                <td>Doctor Management</td>
-                <td>Manage doctors in the blood bank network.</td>
-            </tr>
-            <tr>
-                <td>Patient Management</td>
-                <td>Track patients who need blood transfusions.</td>
-            </tr>
-            <tr>
-                <td>Blood Bank Report</td>
-                <td>View available blood units by blood group and hospital.</td>
-            </tr>
-            <tr>
-                <td>Secure Login</td>
-                <td>Each user has a personal login with role selection.</td>
-            </tr>
-        </tbody>
-    </table>
+    <!-- BLOOD COMPATIBILITY TABLE -->
+    <h2 class="page-title">Blood Compatibility Chart</h2>
+    <div class="table-box">
+        <table>
+            <thead>
+                <tr>
+                    <th>Blood Group</th>
+                    <th>Can Receive From</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td><span class="badge">A+</span></td><td>A+, A-, O+, O-</td></tr>
+                <tr><td><span class="badge">A-</span></td><td>A-, O-</td></tr>
+                <tr><td><span class="badge">B+</span></td><td>B+, B-, O+, O-</td></tr>
+                <tr><td><span class="badge">B-</span></td><td>B-, O-</td></tr>
+                <tr><td><span class="badge">AB+</span></td><td>All blood groups (Universal Recipient)</td></tr>
+                <tr><td><span class="badge">AB-</span></td><td>A-, B-, O-, AB-</td></tr>
+                <tr><td><span class="badge">O+</span></td><td>O+, O-</td></tr>
+                <tr><td><span class="badge">O-</span></td><td>O- only (Universal Donor)</td></tr>
+            </tbody>
+        </table>
+    </div>
 
     {% if session.get('user_name') %}
     <br>
     <div class="alert alert-success">
         Welcome back, <strong>{{ session['user_name'] }}</strong>!
-        You are logged in as <strong>{{ session['user_role'] }}</strong>.
+        You are logged in as <strong>{{ session['user_role']|capitalize }}</strong>.
         <a href="/logout" style="color:#007700; margin-left:10px;">Logout</a>
     </div>
     {% endif %}
@@ -110,6 +160,5 @@
 <div class="footer">
     <p>&copy; 2026 Blood Bank Management System. Built with Flask and PostgreSQL.</p>
 </div>
-
 </body>
 </html>

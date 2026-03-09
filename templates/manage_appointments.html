@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Manage Appointments - Blood Bank</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="navbar">
+    <a class="logo" href="/">Blood Bank</a>
+    <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/dashboard">Dashboard</a></li>
+        {% if is_admin %}<li><a href="/admin">Admin Panel</a></li>{% endif %}
+        <li><a href="/logout">Logout ({{ session['user_name'] }})</a></li>
+    </ul>
+</div>
+
+<div class="container">
+    <h2 class="page-title">Manage Appointments</h2>
+    <p>Total: <strong>{{ appointments|length }}</strong></p>
+    <br>
+
+    {% if appointments %}
+    <div class="table-box">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th><th>Donor</th><th>Blood Group</th>
+                    <th>Hospital</th><th>Date</th><th>Time</th>
+                    <th>Note</th><th>Status</th><th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for a in appointments %}
+                <tr>
+                    <td>{{ a['id'] }}</td>
+                    <td>{{ a['donor_name'] }}</td>
+                    <td><span class="badge">{{ a['blood_group'] }}</span></td>
+                    <td>{{ a['hospital_name'] }}</td>
+                    <td>{{ a['appointment_date'] }}</td>
+                    <td>{{ a['appointment_time'] }}</td>
+                    <td>{{ a['note'] or '-' }}</td>
+                    <td><span class="status-badge status-{{ a['status']|lower }}">{{ a['status'] }}</span></td>
+                    <td>
+                        {% if a['status'] == 'Scheduled' %}
+                        <a href="/update_appointment/{{ a['id'] }}/Confirmed" class="btn btn-blue btn-small">Confirm</a>
+                        <a href="/update_appointment/{{ a['id'] }}/Cancelled" class="btn btn-danger btn-small">Cancel</a>
+                        {% elif a['status'] == 'Confirmed' %}
+                        <a href="/update_appointment/{{ a['id'] }}/Completed" class="btn btn-blue btn-small">Complete</a>
+                        {% else %}
+                        -
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p>No appointments found.</p>
+    {% endif %}
+
+    <br>
+    <a href="/dashboard" class="btn btn-red">Back to Dashboard</a>
+</div>
+
+<div class="footer">
+    <p>&copy; 2026 Blood Bank Management System</p>
+</div>
+</body>
+</html>

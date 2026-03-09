@@ -23,6 +23,21 @@
     <div class="alert alert-error">{{ message }}</div>
     {% endif %}
 
+    <!-- COMPATIBILITY INFO -->
+    <div class="dashboard-card">
+        <h3 class="section-title">Your Blood Compatibility</h3>
+        <p>Your blood group: <span class="badge">{{ patient['blood_group'] }}</span></p>
+        <p>Compatible donor blood groups:</p>
+        <p>
+        {% for bg in compatible %}
+        <span class="badge">{{ bg }}</span>
+        {% endfor %}
+        </p>
+        <p class="text-small">These are the blood groups that are safe to transfuse to you.</p>
+    </div>
+
+    <br>
+
     <div class="form-box">
         <form method="POST" action="/blood_request">
 
@@ -34,6 +49,21 @@
             <div class="form-group">
                 <label>Blood Group Required</label>
                 <input type="text" value="{{ patient['blood_group'] }}" disabled>
+            </div>
+
+            <div class="form-group">
+                <label>Urgency Level</label>
+                <select name="urgency" required>
+                    <option value="Normal">Normal (within 3 days)</option>
+                    <option value="Urgent">Urgent (within 24 hours)</option>
+                    <option value="Critical">Critical (immediate)</option>
+                    <option value="Scheduled">Scheduled (specific date)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Required By Date</label>
+                <input type="date" name="required_date">
             </div>
 
             <div class="form-group">
@@ -52,7 +82,13 @@
                     <option value="1">1 Unit</option>
                     <option value="2">2 Units</option>
                     <option value="3">3 Units</option>
+                    <option value="4">4 Units</option>
                 </select>
+            </div>
+
+            <div class="form-group">
+                <label>Reason / Medical Condition</label>
+                <input type="text" name="reason" placeholder="e.g. Surgery, Accident, Anaemia..." required>
             </div>
 
             <div class="form-group">
@@ -63,6 +99,15 @@
         </form>
     </div>
 
+    <br>
+    <div class="dashboard-card">
+        <h3 class="section-title">What happens next?</h3>
+        <p>1. Your request is sent to a <strong>Doctor</strong> for review.</p>
+        <p>2. Doctor approves or rejects your request.</p>
+        <p>3. If approved by Doctor, <strong>Admin</strong> gives final confirmation.</p>
+        <p>4. Blood is allocated from the nearest hospital stock.</p>
+        <p>5. You can track status in your <a href="/dashboard">Dashboard</a>.</p>
+    </div>
 </div>
 
 <div class="footer">

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Find Blood Donors - Blood Bank</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="navbar">
+    <a class="logo" href="/">Blood Bank</a>
+    <ul>
+        <li><a href="/">Home</a></li>
+        {% if is_logged_in %}<li><a href="/dashboard">Dashboard</a></li>{% endif %}
+        <li><a href="/search_donors">Find Donors</a></li>
+        <li><a href="/report">Report</a></li>
+        {% if is_logged_in %}
+        <li><a href="/logout">Logout ({{ session['user_name'] }})</a></li>
+        {% else %}
+        <li><a href="/login">Login</a></li>
+        {% endif %}
+    </ul>
+</div>
+
+<div class="container">
+    <h2 class="page-title">Find Blood Donors</h2>
+
+    <div class="dashboard-card">
+        <h3 class="section-title">Search by Blood Group</h3>
+        <form method="GET" action="/search_donors">
+            <div class="form-group">
+                <label>Select Patient Blood Group (we will find compatible donors)</label>
+                <select name="blood_group">
+                    <option value="">-- Select Blood Group --</option>
+                    {% for bg in blood_groups %}
+                    <option value="{{ bg }}" {% if bg == blood_group %}selected{% endif %}>{{ bg }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Search Donors" class="btn btn-red">
+                {% if blood_group %}
+                <a href="/search_donors" class="btn btn-blue">Clear</a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    {% if blood_group %}
+    <br>
+    <h3 class="section-title">
+        Compatible Donors for Blood Group <span class="badge">{{ blood_group }}</span>
+    </h3>
+
+    {% if donors %}
+    <p>Found <strong>{{ donors|length }}</strong> compatible donor(s).</p>
+    <div class="table-box">
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Blood Group</th>
+                    <th>Address</th>
+                    <th>Mobile</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for d in donors %}
+                <tr>
+                    <td>{{ d['name'] }}</td>
+                    <td><span class="badge">{{ d['blood_group'] }}</span></td>
+                    <td>{{ d['address'] }}</td>
+                    <td>{{ d['mobile'] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-error">
+        No compatible donors found for blood group <strong>{{ blood_group }}</strong> at this time.
+        Please contact the blood bank directly.
+    </div>
+    {% endif %}
+    {% endif %}
+
+</div>
+
+<div class="footer">
+    <p>&copy; 2026 Blood Bank Management System</p>
+</div>
+</body>
+</html>
