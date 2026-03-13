@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Manage Blood Stock - Blood Bank</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="navbar">
+    <a class="logo" href="/">Blood Bank</a>
+    <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/admin">Admin Panel</a></li>
+        <li><a href="/manage_stock">Blood Stock</a></li>
+        <li><a href="/report">Report</a></li>
+        <li><a href="/logout">Logout</a></li>
+    </ul>
+</div>
+
+<div class="container">
+    <h2 class="page-title">&#129656; Manage Blood Stock</h2>
+
+    {% if message %}
+    <div class="alert alert-{{ msg_type }}">{{ message }}</div>
+    {% endif %}
+
+    <!-- UPDATE FORM -->
+    <div class="dashboard-card">
+        <h3 class="section-title">Add / Set / Remove Units</h3>
+        <form method="POST" action="/manage_stock">
+            <div style="display:flex; flex-wrap:wrap; gap:16px; align-items:flex-end;">
+
+                <div class="form-group" style="min-width:150px; flex:1;">
+                    <label>Blood Group</label>
+                    <select name="blood_group" required>
+                        <option value="">-- Select --</option>
+                        {% for bg in blood_groups %}
+                        <option value="{{ bg }}">{{ bg }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group" style="min-width:200px; flex:2;">
+                    <label>Hospital</label>
+                    <select name="hospital_name" required>
+                        <option value="">-- Select Hospital --</option>
+                        {% for h in hospitals %}
+                        <option value="{{ h['name'] }}">{{ h['name'] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group" style="min-width:100px; flex:1;">
+                    <label>Units</label>
+                    <input type="number" name="units" min="1" max="500" value="1" required>
+                </div>
+
+                <div class="form-group" style="min-width:120px; flex:1;">
+                    <label>Action</label>
+                    <select name="action" required>
+                        <option value="add">➕ Add Units</option>
+                        <option value="set">🔄 Set Exact Units</option>
+                        <option value="remove">➖ Remove Units</option>
+                    </select>
+                </div>
+
+                <div class="form-group" style="flex:1; min-width:120px;">
+                    <label>&nbsp;</label>
+                    <input type="submit" value="Update Stock" class="btn btn-red" style="width:100%;">
+                </div>
+
+            </div>
+        </form>
+
+        <div class="alert" style="background:#f0f8ff; border:1px solid #0055aa; color:#003366; margin-top:10px;">
+            <strong>How it works:</strong>
+            <strong>Add Units</strong> — increases current stock by the amount entered. &nbsp;|&nbsp;
+            <strong>Set Exact Units</strong> — overrides and sets stock to exact number. &nbsp;|&nbsp;
+            <strong>Remove Units</strong> — decreases stock (won't go below 0).
+        </div>
+    </div>
+
+    <br>
+
+    <!-- CURRENT STOCK TABLE -->
+    <h3 class="section-title">Current Blood Stock — All Hospitals</h3>
+    <div class="table-box">
+        <table>
+            <thead>
+                <tr>
+                    <th>Blood Group</th>
+                    <th>Hospital</th>
+                    <th>Available Units</th>
+                    <th>Last Updated</th>
+                    <th>Status</th>
+                    <th>Quick Add 10</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in all_stock %}
+                <tr>
+                    <td><span class="badge">{{ row['blood_group'] }}</span></td>
+                    <td>{{ row['hospital_name'] }}</td>
+                    <td><strong>{{ row['available_units'] }}</strong> units</td>
+                    <td>{{ row['last_updated'] }}</td>
+                    <td>
+                        {% if row['available_units'] == 0 %}
+                        <span class="status-badge status-rejected">Empty</span>
+                        {% elif row['available_units'] < 5 %}
+                        <span class="status-badge status-rejected">Low Stock</span>
+                        {% elif row['available_units'] < 10 %}
+                        <span class="status-badge status-pending">Moderate</span>
+                        {% else %}
+                        <span class="status-badge status-completed">Good</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <form method="POST" action="/manage_stock" style="display:inline;">
+                            <input type="hidden" name="blood_group" value="{{ row['blood_group'] }}">
+                            <input type="hidden" name="hospital_name" value="{{ row['hospital_name'] }}">
+                            <input type="hidden" name="units" value="10">
+                            <input type="hidden" name="action" value="add">
+                            <button type="submit" class="btn btn-blue btn-small">+10 Units</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <br>
+    <a href="/admin" class="btn btn-red">Back to Admin Panel</a>
+    &nbsp;
+    <a href="/report" class="btn btn-blue">View Full Report</a>
+</div>
+
+<div class="footer">
+    <p>&copy; 2026 Blood Bank Management System</p>
+</div>
+</body>
+</html>

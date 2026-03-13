@@ -953,6 +953,86 @@ def admin():
         low_stock_list=low_stock_list, admin_msg=admin_msg)
 
 
+
+
+# ============================================
+# MANAGE BLOOD STOCK - ADMIN ONLY
+# ============================================
+
+@app.route('/manage_stock', methods=['GET', 'POST'])
+def manage_stock():
+    if not is_admin(): return redirect(url_for('access_denied'))
+    conn = get_db()
+    cur  = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    message = ""
+    msg_type = "success"
+
+    if request.method == 'POST':
+        action      = request.form.get('action')
+        blood_group = request.form.get('blood_group')
+        hospital    = request.form.get('hospital_name')
+        units       = int(request.form.get('units', 0))
+
+        cur2 = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        cur2.execute("SELECT * FROM blood_bank WHERE blood_group=%s AND hospital_name=%s",
+                    (blood_group, hospital))
+        existing = cur2.fetchone()
+
+        cur3 = conn.cursor()
+        if action == 'add':
+            if existing:
+                cur3.execute(
+                    "UPDATE blood_bank SET available_units=available_units+%s, last_updated=CURRENT_DATE WHERE blood_group=%s AND hospital_name=%s",
+                    (units, blood_group, hospital)
+                )
+                message = f"Added {units} units of {blood_group} to {hospital}."
+            else:
+                cur3.execute(
+                    "INSERT INTO blood_bank (blood_group, available_units, hospital_name) VALUES (%s,%s,%s)",
+                    (blood_group, units, hospital)
+                )
+                message = f"Created new stock: {units} units of {blood_group} at {hospital}."
+
+        elif action == 'set':
+            if existing:
+                cur3.execute(
+                    "UPDATE blood_bank SET available_units=%s, last_updated=CURRENT_DATE WHERE blood_group=%s AND hospital_name=%s",
+                    (units, blood_group, hospital)
+                )
+                message = f"Stock set to {units} units of {blood_group} at {hospital}."
+            else:
+                cur3.execute(
+                    "INSERT INTO blood_bank (blood_group, available_units, hospital_name) VALUES (%s,%s,%s)",
+                    (blood_group, units, hospital)
+                )
+                message = f"Created stock: {units} units of {blood_group} at {hospital}."
+
+        elif action == 'remove':
+            if existing:
+                new_units = max(0, existing['available_units'] - units)
+                cur3.execute(
+                    "UPDATE blood_bank SET available_units=%s, last_updated=CURRENT_DATE WHERE blood_group=%s AND hospital_name=%s",
+                    (new_units, blood_group, hospital)
+                )
+                message = f"Removed {units} units of {blood_group} from {hospital}. New total: {new_units}."
+            else:
+                message = f"No stock found for {blood_group} at {hospital}."
+                msg_type = "error"
+
+        conn.commit()
+
+    # Fetch all stock and hospitals
+    cur.execute("SELECT * FROM blood_bank ORDER BY hospital_name, blood_group")
+    all_stock = cur.fetchall()
+    cur.execute("SELECT name FROM hospital ORDER BY name")
+    hospitals = cur.fetchall()
+    conn.close()
+
+    return render_template('manage_stock.html',
+        all_stock=all_stock, hospitals=hospitals,
+        blood_groups=['A+','A-','B+','B-','O+','O-','AB+','AB-'],
+        message=message, msg_type=msg_type)
+
 # ============================================
 # THANK YOU
 # ============================================
