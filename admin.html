@@ -201,6 +201,17 @@
                     <td><span class="urgency-{{ r['urgency']|lower }}">{{ r['urgency'] }}</span></td>
                     <td><span class="status-badge status-{{ r['doctor_status']|lower }}">{{ r['doctor_status'] }}</span></td>
                     <td><span class="status-badge status-{{ r['admin_status']|lower }}">{{ r['admin_status'] }}</span></td>
+                    <td>
+                        {% if r['doctor_status'] == 'Rejected' or r['admin_status'] == 'Rejected' %}
+                        <span class="status-badge status-rejected">❌ Rejected</span>
+                        {% elif r['doctor_status'] == 'Approved' and r['admin_status'] == 'Approved' %}
+                        <span class="status-badge status-completed">✅ Fulfilled</span>
+                        {% elif r['doctor_status'] == 'Approved' and r['admin_status'] == 'Pending' %}
+                        <span class="status-badge status-pending">⏳ Awaiting Admin</span>
+                        {% else %}
+                        <span class="status-badge status-pending">⏳ Awaiting Doctor</span>
+                        {% endif %}
+                    </td>
                     <td>{{ r['request_date'] }}</td>
                 </tr>
                 {% endfor %}

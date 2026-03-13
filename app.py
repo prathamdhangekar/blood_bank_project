@@ -146,6 +146,17 @@ def init_db():
         try: ac.close()
         except: pass
 
+    # Fix old data: if doctor rejected but admin still shows Pending, auto-fix
+    try:
+        fc = psycopg2.connect(DATABASE_URL)
+        fc.autocommit = True
+        fx = fc.cursor()
+        fx.execute("UPDATE blood_request SET admin_status='Rejected' WHERE doctor_status='Rejected' AND admin_status='Pending'")
+        fc.close()
+    except Exception:
+        try: fc.close()
+        except: pass
+
     # Insert sample data if empty
     sc = psycopg2.connect(DATABASE_URL)
     scur = sc.cursor()
@@ -647,8 +658,13 @@ def doctor_action(id, action):
     note = request.form.get('note', '')
     status = 'Approved' if action == 'approve' else 'Rejected'
     conn = get_db(); cur = conn.cursor()
-    cur.execute("UPDATE blood_request SET doctor_status=%s, doctor_id=%s, doctor_note=%s WHERE id=%s",
-               (status, session.get('user_id'), note, id))
+    if status == 'Rejected':
+        # Doctor rejected — auto reject admin status too
+        cur.execute("UPDATE blood_request SET doctor_status=%s, doctor_id=%s, doctor_note=%s, admin_status='Rejected' WHERE id=%s",
+                   (status, session.get('user_id'), note, id))
+    else:
+        cur.execute("UPDATE blood_request SET doctor_status=%s, doctor_id=%s, doctor_note=%s WHERE id=%s",
+                   (status, session.get('user_id'), note, id))
     conn.commit(); conn.close()
     return redirect(url_for('manage_requests'))
 
