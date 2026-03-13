@@ -671,6 +671,7 @@ def admin_action(id, action):
         stock = cur2.fetchone()
         if not stock or stock['available_units'] < req['units']:
             conn.close()
+            session['admin_msg'] = f"Cannot approve: Insufficient {req['blood_group']} stock at {req['hospital_name']}. Available: {stock['available_units'] if stock else 0} units, Requested: {req['units']} units."
             return redirect(url_for('admin'))
         cur3 = conn.cursor()
         cur3.execute("UPDATE blood_request SET admin_status='Approved', admin_note=%s WHERE id=%s", (note, id))
@@ -690,6 +691,8 @@ def admin_action(id, action):
 
 @app.route('/search_donors')
 def search_donors():
+    r = admin_or_doctor_required()
+    if r: return r
     blood_group = request.args.get('blood_group', '').strip()
     donors = []
     conn = get_db()
@@ -897,6 +900,8 @@ def edit_patient(id):
 
 @app.route('/report')
 def report():
+    r = admin_or_doctor_required()
+    if r: return r
     conn = get_db()
     cur  = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     cur.execute("SELECT * FROM blood_bank ORDER BY hospital_name, blood_group")
@@ -938,13 +943,14 @@ def admin():
     cur.execute("SELECT * FROM blood_bank WHERE available_units < %s ORDER BY available_units", (LOW_STOCK_THRESHOLD,))
     low_stock_list = cur.fetchall()
     conn.close()
+    admin_msg = session.pop('admin_msg', None)
     return render_template('admin.html',
         donors_count=donors_count, doctors_count=doctors_count,
         patients_count=patients_count, donations_count=donations_count,
         requests_count=requests_count, appt_count=appt_count,
         recent_donations=recent_donations, pending_requests=pending_requests,
         all_requests=all_requests, blood_summary=blood_summary,
-        low_stock_list=low_stock_list)
+        low_stock_list=low_stock_list, admin_msg=admin_msg)
 
 
 # ============================================

@@ -14,9 +14,9 @@
         {% if is_admin or is_doctor %}
         <li><a href="/view_donor">Donors</a></li>
         <li><a href="/view_patient">Patients</a></li>
-        {% endif %}
         <li><a href="/search_donors">Find Donors</a></li>
         <li><a href="/report">Report</a></li>
+        {% endif %}
         <li>
             <a href="/manage_requests">Requests
                 {% if pending_count > 0 %}<span class="badge-count">{{ pending_count }}</span>{% endif %}

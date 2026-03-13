@@ -10,14 +10,11 @@
     <a class="logo" href="/">Blood Bank</a>
     <ul>
         <li><a href="/">Home</a></li>
-        {% if is_logged_in %}<li><a href="/dashboard">Dashboard</a></li>{% endif %}
+        <li><a href="/dashboard">Dashboard</a></li>
         <li><a href="/search_donors">Find Donors</a></li>
         <li><a href="/report">Report</a></li>
-        {% if is_logged_in %}
+        {% if is_admin %}<li><a href="/admin">Admin Panel</a></li>{% endif %}
         <li><a href="/logout">Logout ({{ session['user_name'] }})</a></li>
-        {% else %}
-        <li><a href="/login">Login</a></li>
-        {% endif %}
     </ul>
 </div>
 

@@ -10,30 +10,27 @@
     <a class="logo" href="/">Blood Bank</a>
     <ul>
         <li><a href="/">Home</a></li>
-        {% if is_logged_in %}
-        <li><a href="/dashboard">Dashboard</a></li>
-        {% endif %}
         {% if not is_logged_in %}
         <li><a href="/register">Register</a></li>
         <li><a href="/login">Login</a></li>
         {% endif %}
+        {% if is_logged_in %}
+        <li><a href="/dashboard">Dashboard</a></li>
+        {% endif %}
         {% if is_admin or is_doctor %}
         <li><a href="/view_donor">Donors</a></li>
         <li><a href="/view_patient">Patients</a></li>
+        <li><a href="/search_donors">Find Donors</a></li>
+        <li><a href="/report">Report</a></li>
         {% endif %}
         {% if is_admin %}
         <li><a href="/view_doctor">Doctors</a></li>
         <li><a href="/admin">Admin Panel</a></li>
         {% endif %}
-        <li><a href="/search_donors">Find Donors</a></li>
-        <li><a href="/report">Report</a></li>
         {% if is_logged_in %}
         <li>
-            <a href="/manage_requests">
-                Requests
-                {% if pending_count > 0 %}
-                <span class="badge-count">{{ pending_count }}</span>
-                {% endif %}
+            <a href="/manage_requests">Requests
+                {% if pending_count > 0 %}<span class="badge-count">{{ pending_count }}</span>{% endif %}
             </a>
         </li>
         <li><a href="/logout">Logout ({{ session['user_name'] }})</a></li>
@@ -41,7 +38,6 @@
     </ul>
 </div>
 
-<!-- LOW STOCK ALERT -->
 {% if low_stock and (is_admin or is_doctor) %}
 <div class="low-stock-bar">
     &#9888; Low Stock Alert:
@@ -54,19 +50,20 @@
 
 <!-- HERO -->
 <div class="hero">
-    <h1>Blood Bank Management System</h1>
+    <h1>&#10084; Blood Bank Management System</h1>
     <p>Saving lives by connecting donors, doctors and patients.</p>
     {% if not is_logged_in %}
     <a href="/register">Register Now</a>
     <a href="/login">Login</a>
     {% else %}
-    <a href="/dashboard">Go to Dashboard</a>
+    <a href="/dashboard">My Dashboard</a>
+    {% if is_admin or is_doctor %}
+    <a href="/search_donors">Find Donors</a>
+    <a href="/report">Blood Report</a>
     {% endif %}
-    <a href="/search_donors">Find Blood Donors</a>
-    <a href="/report">View Blood Report</a>
+    {% endif %}
 </div>
 
-<!-- CONTENT -->
 <div class="container">
 
     <h2 class="page-title">Quick Links</h2>
@@ -80,13 +77,13 @@
             <div class="card-icon">&#128274;</div>
             <div class="card-label">Login</div>
         </a>
-        {% endif %}
-        {% if is_logged_in %}
+        {% else %}
         <a class="card" href="/dashboard">
             <div class="card-icon">&#127968;</div>
             <div class="card-label">Dashboard</div>
         </a>
         {% endif %}
+        {% if is_admin or is_doctor %}
         <a class="card" href="/search_donors">
             <div class="card-icon">&#128269;</div>
             <div class="card-label">Find Donors</div>
@@ -95,7 +92,6 @@
             <div class="card-icon">&#128202;</div>
             <div class="card-label">Blood Report</div>
         </a>
-        {% if is_admin or is_doctor %}
         <a class="card" href="/view_donor">
             <div class="card-icon">&#129656;</div>
             <div class="card-label">View Donors</div>
@@ -107,9 +103,7 @@
         <a class="card" href="/manage_requests">
             <div class="card-icon">&#128203;</div>
             <div class="card-label">Requests
-                {% if pending_count > 0 %}
-                <span class="badge-count">{{ pending_count }}</span>
-                {% endif %}
+                {% if pending_count > 0 %}<span class="badge-count">{{ pending_count }}</span>{% endif %}
             </div>
         </a>
         {% endif %}
@@ -123,7 +117,7 @@
 
     <br><br>
 
-    <!-- BLOOD COMPATIBILITY TABLE -->
+    <!-- BLOOD COMPATIBILITY TABLE - visible to all -->
     <h2 class="page-title">Blood Compatibility Chart</h2>
     <div class="table-box">
         <table>
@@ -146,12 +140,12 @@
         </table>
     </div>
 
-    {% if session.get('user_name') %}
+    {% if is_logged_in %}
     <br>
     <div class="alert alert-success">
         Welcome back, <strong>{{ session['user_name'] }}</strong>!
-        You are logged in as <strong>{{ session['user_role']|capitalize }}</strong>.
-        <a href="/logout" style="color:#007700; margin-left:10px;">Logout</a>
+        Logged in as <strong>{{ session['user_role']|capitalize }}</strong>.
+        &nbsp;|&nbsp; <a href="/logout" style="color:#007700;">Logout</a>
     </div>
     {% endif %}
 

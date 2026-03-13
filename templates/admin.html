@@ -38,6 +38,10 @@
 <div class="container">
     <h2 class="page-title">Admin Panel</h2>
 
+    {% if admin_msg %}
+    <div class="alert alert-error">&#9888; {{ admin_msg }}</div>
+    {% endif %}
+
     <!-- STATS -->
     <div class="stats-row">
         <div class="stat-box">
