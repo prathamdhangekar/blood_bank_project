@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Panel - Blood Bank</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="navbar">
+    <a class="logo" href="/">Blood Bank</a>
+    <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/admin">Admin Panel</a></li>
+        <li><a href="/view_donor">Donors</a></li>
+        <li><a href="/view_doctor">Doctors</a></li>
+        <li><a href="/view_patient">Patients</a></li>
+        <li><a href="/manage_requests">
+            Requests
+            {% if pending_count > 0 %}<span class="badge-count">{{ pending_count }}</span>{% endif %}
+        </a></li>
+        <li><a href="/manage_stock">Blood Stock</a></li>
+        <li><a href="/manage_appointments">Appointments</a></li>
+        <li><a href="/donation_history">Donations</a></li>
+        <li><a href="/report">Report</a></li>
+        <li><a href="/logout">Logout</a></li>
+    </ul>
+</div>
+
+{% if low_stock_list %}
+<div class="low-stock-bar">
+    &#9888; Low Stock Alert:
+    {% for item in low_stock_list %}
+    <strong>{{ item['blood_group'] }}</strong> at {{ item['hospital_name'] }} ({{ item['available_units'] }} units)
+    {% if not loop.last %} | {% endif %}
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="container">
+    <h2 class="page-title">Admin Panel</h2>
+
+    {% if admin_msg %}
+    <div class="alert alert-error">&#9888; {{ admin_msg }}</div>
+    {% endif %}
+
+    <!-- STATS -->
+    <div class="stats-row">
+        <div class="stat-box">
+            <div class="stat-number">{{ donors_count }}</div>
+            <div class="stat-label">Donors</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-number">{{ doctors_count }}</div>
+            <div class="stat-label">Doctors</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-number">{{ patients_count }}</div>
+            <div class="stat-label">Patients</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-number">{{ donations_count }}</div>
+            <div class="stat-label">Donations</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-number">{{ requests_count }}</div>
+            <div class="stat-label">Requests</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-number">{{ appt_count }}</div>
+            <div class="stat-label">Appointments</div>
+        </div>
+    </div>
+
+    <br>
+
+    <!-- PENDING ADMIN APPROVAL -->
+    <h3 class="section-title">
+        &#128203; Awaiting Your Approval
+        {% if pending_requests %}<span class="badge-count">{{ pending_requests|length }}</span>{% endif %}
+    </h3>
+
+    {% if pending_requests %}
+    <div class="table-box">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th><th>Patient</th><th>Blood Group</th><th>Units</th>
+                    <th>Hospital</th><th>Urgency</th><th>Reason</th><th>Doctor Note</th>
+                    <th>Date</th><th>Confirm</th><th>Reject</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in pending_requests %}
+                <tr>
+                    <td>{{ r['id'] }}</td>
+                    <td>{{ r['patient_name'] }}</td>
+                    <td><span class="badge">{{ r['blood_group'] }}</span></td>
+                    <td>{{ r['units'] }}</td>
+                    <td>{{ r['hospital_name'] }}</td>
+                    <td><span class="urgency-{{ r['urgency']|lower }}">{{ r['urgency'] }}</span></td>
+                    <td>{{ r['reason'] or '-' }}</td>
+                    <td>{{ r['doctor_note'] or '-' }}</td>
+                    <td>{{ r['request_date'] }}</td>
+                    <td>
+                        <form method="POST" action="/admin_action/{{ r['id'] }}/approve" style="display:inline;">
+                            <input type="text" name="note" placeholder="Note" style="width:80px; padding:3px; font-size:11px; border:1px solid #ccc; border-radius:4px;">
+                            <button type="submit" class="btn btn-blue btn-small">Confirm</button>
+                        </form>
+                    </td>
+                    <td>
+                        <form method="POST" action="/admin_action/{{ r['id'] }}/reject" style="display:inline;">
+                            <input type="text" name="note" placeholder="Reason" style="width:80px; padding:3px; font-size:11px; border:1px solid #ccc; border-radius:4px;">
+                            <button type="submit" class="btn btn-danger btn-small">Reject</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-success">No requests pending your approval.</div>
+    {% endif %}
+
+    <br>
+
+    <!-- BLOOD STOCK SUMMARY -->
+    <h3 class="section-title">&#129656; Blood Stock Summary &nbsp;<a href="/manage_stock" class="btn btn-red btn-small">+ Add / Update Stock</a></h3>
+    <div class="table-box">
+        <table>
+            <thead>
+                <tr><th>Blood Group</th><th>Total Units</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+                {% for row in blood_summary %}
+                <tr>
+                    <td><span class="badge">{{ row['blood_group'] }}</span></td>
+                    <td>{{ row['total'] }} units</td>
+                    <td>
+                        {% if row['total'] < 5 %}
+                        <span class="status-badge status-rejected">Low Stock</span>
+                        {% elif row['total'] < 10 %}
+                        <span class="status-badge status-pending">Moderate</span>
+                        {% else %}
+                        <span class="status-badge status-completed">Good</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <br>
+
+    <!-- RECENT DONATIONS -->
+    <h3 class="section-title">&#128137; Recent Donations</h3>
+    {% if recent_donations %}
+    <div class="table-box">
+        <table>
+            <thead>
+                <tr><th>ID</th><th>Donor</th><th>Blood Group</th><th>Units</th><th>Hospital</th><th>Date</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+                {% for d in recent_donations %}
+                <tr>
+                    <td>{{ d['id'] }}</td>
+                    <td>{{ d['donor_name'] }}</td>
+                    <td><span class="badge">{{ d['blood_group'] }}</span></td>
+                    <td>{{ d['units'] }}</td>
+                    <td>{{ d['hospital_name'] }}</td>
+                    <td>{{ d['donation_date'] }}</td>
+                    <td><span class="status-badge status-{{ d['status']|lower }}">{{ d['status'] }}</span></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p>No donations yet.</p>
+    {% endif %}
+
+    <br>
+
+    <!-- ALL REQUESTS -->
+    <h3 class="section-title">&#128203; All Blood Requests</h3>
+    {% if all_requests %}
+    <div class="table-box">
+        <table>
+            <thead>
+                <tr><th>ID</th><th>Patient</th><th>Blood Group</th><th>Units</th><th>Hospital</th><th>Urgency</th><th>Doctor</th><th>Admin</th><th>Date</th></tr>
+            </thead>
+            <tbody>
+                {% for r in all_requests %}
+                <tr>
+                    <td>{{ r['id'] }}</td>
+                    <td>{{ r['patient_name'] }}</td>
+                    <td><span class="badge">{{ r['blood_group'] }}</span></td>
+                    <td>{{ r['units'] }}</td>
+                    <td>{{ r['hospital_name'] }}</td>
+                    <td><span class="urgency-{{ r['urgency']|lower }}">{{ r['urgency'] }}</span></td>
+                    <td><span class="status-badge status-{{ r['doctor_status']|lower }}">{{ r['doctor_status'] }}</span></td>
+                    <td><span class="status-badge status-{{ r['admin_status']|lower }}">{{ r['admin_status'] }}</span></td>
+                    <td>
+                        {% if r['doctor_status'] == 'Rejected' or r['admin_status'] == 'Rejected' %}
+                        <span class="status-badge status-rejected">❌ Rejected</span>
+                        {% elif r['doctor_status'] == 'Approved' and r['admin_status'] == 'Approved' %}
+                        <span class="status-badge status-completed">✅ Fulfilled</span>
+                        {% elif r['doctor_status'] == 'Approved' and r['admin_status'] == 'Pending' %}
+                        <span class="status-badge status-pending">⏳ Awaiting Admin</span>
+                        {% else %}
+                        <span class="status-badge status-pending">⏳ Awaiting Doctor</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ r['request_date'] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p>No blood requests yet.</p>
+    {% endif %}
+
+    <br>
+
+    <!-- QUICK LINKS -->
+    <h3 class="section-title">&#9881; Manage</h3>
+    <a href="/view_donor" class="btn btn-red">Donors</a>&nbsp;
+    <a href="/view_doctor" class="btn btn-red">Doctors</a>&nbsp;
+    <a href="/view_patient" class="btn btn-red">Patients</a>&nbsp;
+    <a href="/manage_appointments" class="btn btn-blue">Appointments</a>&nbsp;
+    <a href="/donation_history" class="btn btn-blue">All Donations</a>&nbsp;
+    <a href="/manage_stock" class="btn btn-red">Manage Blood Stock</a>&nbsp;
+    <a href="/report" class="btn btn-blue">Blood Report</a>
+
+</div>
+
+<div class="footer">
+    <p>&copy; 2026 Blood Bank Management System</p>
+</div>
+</body>
+</html>
