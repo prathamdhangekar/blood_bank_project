@@ -1,9 +1,3 @@
-# ============================================
-# Blood Bank Management System
-# Backend: Flask + PostgreSQL
-# Full Real-Life Version
-# ============================================
-
 from flask import Flask, render_template, request, redirect, url_for, session
 import psycopg2
 import psycopg2.extras
